@@ -1,0 +1,503 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Roboto", Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+.header {
+    background-color: #4285f4;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    margin-bottom: 20px;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.timestamp {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.container {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 左侧面板样式 */
+.left-panel {
+    flex: 1;
+    max-width: 350px;
+    padding-right: 20px;
+}
+
+.parameters {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.parameters h2 {
+    margin-bottom: 20px;
+    color: #4285f4;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.parameter {
+    margin-bottom: 15px;
+}
+
+.parameter label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+.parameter input[type="range"] {
+    width: 100%;
+    height: 8px;
+    background: #e0e0e0;
+    outline: none;
+    opacity: 0.9;
+    transition: opacity .2s;
+    border-radius: 4px;
+}
+
+.parameter input[type="range"]:hover {
+    opacity: 1;
+}
+
+.parameter input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #4285f4;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.parameter .value {
+    float: right;
+    font-weight: bold;
+    color: #4285f4;
+}
+
+.parameter select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: white;
+    font-size: 14px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 25px 0 15px;
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+button#reset {
+    background-color: #f1f1f1;
+    color: #555;
+}
+
+button#reset:hover {
+    background-color: #e0e0e0;
+}
+
+button#calculate {
+    background-color: #4285f4;
+    color: white;
+}
+
+button#calculate:hover {
+    background-color: #3367d6;
+    transform: translateY(-1px);
+}
+
+.risk-legend {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.risk-level {
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.risk-level.low {
+    background-color: #34a853;
+    color: white;
+}
+
+.risk-level.moderate {
+    background-color: #fbbc05;
+    color: #333;
+}
+
+.risk-level.high {
+    background-color: #ea4335;
+    color: white;
+}
+
+/* 右侧面板样式 */
+.right-panel {
+    flex: 2;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    background-color: transparent;
+    border: none;
+    padding: 12px 15px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #777;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: #4285f4;
+}
+
+.tab-btn.active {
+    color: #4285f4;
+    border-bottom: 3px solid #4285f4;
+}
+
+.tab-content {
+    display: block;
+}
+
+.tab-content.hidden {
+    display: none;
+}
+
+.tab-content h2 {
+    color: #4285f4;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.tab-content h3 {
+    color: #555;
+    margin-bottom: 10px;
+}
+
+/* 风险评估结果样式 */
+.confidence-interval {
+    margin-bottom: 30px;
+}
+
+.confidence-interval h3 {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.ci-visual {
+    margin-top: 10px;
+}
+
+.ci-bar {
+    height: 12px;
+    background: linear-gradient(90deg, #34a853, #fbbc05, #ea4335);
+    border-radius: 6px;
+    position: relative;
+    margin-bottom: 5px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.ci-marker {
+    width: 12px;
+    height: 24px;
+    background-color: #4285f4;
+    border-radius: 3px;
+    position: absolute;
+    top: -6px;
+    left: 0;
+    transform: translateX(-50%);
+    transition: left 0.5s ease;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.ci-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #777;
+}
+
+.risk-indicators {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.risk-probability, .risk-category {
+    flex: 1;
+    text-align: center;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    margin: 0 10px;
+}
+
+.risk-value {
+    font-size: 36px;
+    font-weight: bold;
+    color: #4285f4;
+    margin-top: 10px;
+}
+
+.category {
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.category.low-risk {
+    color: #34a853;
+}
+
+.category.moderate-risk {
+    color: #fbbc05;
+}
+
+.category.high-risk {
+    color: #ea4335;
+}
+
+/* 风险因素可视化 */
+.risk-visualization {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.risk-visualization h3 {
+    margin-bottom: 5px;
+}
+
+.risk-visualization p {
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.risk-factors {
+    margin-top: 30px;
+}
+
+.risk-factors h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.organs {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.organ {
+    text-align: center;
+}
+
+.organ-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 10px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: transform 0.3s;
+}
+
+.organ-icon:hover {
+    transform: scale(1.1);
+}
+
+.lung {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234285f4"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>');
+}
+
+.heart {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ea4335"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>');
+}
+
+.patient {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23fbbc05"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>');
+}
+
+.organ-label {
+    font-weight: 500;
+    color: #555;
+    font-size: 14px;
+}
+
+.risk-factors-legend {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 30px;
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+}
+
+.legend-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.inflammation {
+    background-color: #ea4335;
+}
+
+.operative {
+    background-color: #4285f4;
+}
+
+.comorbidity {
+    background-color: #fbbc05;
+}
+
+/* 模型系数和性能标签页 */
+.feature-importance, .roc-curve, .metrics {
+    margin-top: 20px;
+}
+
+.metrics {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+}
+
+.metric {
+    text-align: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    min-width: 150px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.metric:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.metric h3 {
+    color: #555;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.metric-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #4285f4;
+}
+
+.chart {
+    height: 350px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+/* 页脚样式 */
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding: 15px;
+    color: #777;
+    font-size: 12px;
+    position: relative;
+}
+
+.file-path {
+    font-size: 10px;
+    color: #999;
+    margin-top: 5px;
+}
+
+.page-indicator {
+    position: absolute;
+    right: 20px;
+    bottom: 15px;
+    font-size: 12px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .left-panel {
+        max-width: 100%;
+        padding-right: 0;
+        margin-bottom: 20px;
+    }
+    
+    .metrics {
+        flex-direction: column;
+    }
+    
+    .metric {
+        margin-bottom: 15px;
+    }
+}
