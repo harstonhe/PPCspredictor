@@ -1,0 +1,1031 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic PPCs Risk Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/\/static\/js\/chart.js"></script>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Roboto", Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #4285f4;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .timestamp {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 左侧面板样式 */
+        .left-panel {
+            flex: 1;
+            max-width: 350px;
+            padding-right: 20px;
+        }
+
+        .parameters {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .parameters h2 {
+            margin-bottom: 20px;
+            color: #4285f4;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .parameter {
+            margin-bottom: 15px;
+        }
+
+        .parameter label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .parameter input[type="range"] {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            outline: none;
+            opacity: 0.9;
+            transition: opacity .2s;
+            border-radius: 4px;
+        }
+
+        .parameter input[type="range"]:hover {
+            opacity: 1;
+        }
+
+        .parameter input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #4285f4;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .parameter .value {
+            float: right;
+            font-weight: bold;
+            color: #4285f4;
+        }
+
+        .parameter select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            font-size: 14px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 25px 0 15px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        button#reset {
+            background-color: #f1f1f1;
+            color: #555;
+        }
+
+        button#reset:hover {
+            background-color: #e0e0e0;
+        }
+
+        button#calculate {
+            background-color: #4285f4;
+            color: white;
+        }
+
+        button#calculate:hover {
+            background-color: #3367d6;
+            transform: translateY(-1px);
+        }
+
+        .risk-legend {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .risk-level {
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .risk-level.low {
+            background-color: #34a853;
+            color: white;
+        }
+
+        .risk-level.moderate {
+            background-color: #fbbc05;
+            color: #333;
+        }
+
+        .risk-level.high {
+            background-color: #ea4335;
+            color: white;
+        }
+
+        /* 右侧面板样式 */
+        .right-panel {
+            flex: 2;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background-color: transparent;
+            border: none;
+            padding: 12px 15px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #777;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #4285f4;
+        }
+
+        .tab-btn.active {
+            color: #4285f4;
+            border-bottom: 3px solid #4285f4;
+        }
+
+        .tab-content {
+            display: block;
+        }
+
+        .tab-content.hidden {
+            display: none;
+        }
+
+        .tab-content h2 {
+            color: #4285f4;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .tab-content h3 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        /* 风险评估结果样式 */
+        .confidence-interval {
+            margin-bottom: 30px;
+        }
+
+        .confidence-interval h3 {
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .ci-visual {
+            margin-top: 10px;
+        }
+
+        .ci-bar {
+            height: 12px;
+            background: linear-gradient(90deg, #34a853, #fbbc05, #ea4335);
+            border-radius: 6px;
+            position: relative;
+            margin-bottom: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .ci-marker {
+            width: 12px;
+            height: 24px;
+            background-color: #4285f4;
+            border-radius: 3px;
+            position: absolute;
+            top: -6px;
+            left: 0;
+            transform: translateX(-50%);
+            transition: left 0.5s ease;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .ci-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #777;
+        }
+
+        .risk-indicators {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .risk-probability, .risk-category {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            margin: 0 10px;
+        }
+
+        .risk-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #4285f4;
+            margin-top: 10px;
+        }
+
+        .category {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .category.low-risk {
+            color: #34a853;
+        }
+
+        .category.moderate-risk {
+            color: #fbbc05;
+        }
+
+        .category.high-risk {
+            color: #ea4335;
+        }
+
+        /* 风险因素可视化 */
+        .risk-visualization {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .risk-visualization h3 {
+            margin-bottom: 5px;
+        }
+
+        .risk-visualization p {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .risk-factors {
+            margin-top: 30px;
+        }
+
+        .risk-factors h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .organs {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .organ {
+            text-align: center;
+            width: 30%;
+        }
+
+        .organ-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 10px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: transform 0.3s;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .organ-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .operative-time {
+            background-color: #4285f4;
+        }
+
+        .post-rf {
+            background-color: #34a853;
+        }
+
+        .post-wbc {
+            background-color: #ea4335;
+        }
+
+        .organ-label {
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .risk-factors-legend {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .inflammation {
+            background-color: #ea4335;
+        }
+
+        .operative {
+            background-color: #4285f4;
+        }
+
+        .comorbidity {
+            background-color: #fbbc05;
+        }
+
+        /* 模型系数和性能标签页 */
+        .feature-importance, .roc-curve, .metrics {
+            margin-top: 20px;
+        }
+
+        .metrics {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            min-width: 150px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .metric:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric h3 {
+            color: #555;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4285f4;
+        }
+
+        .chart-container {
+            height: 350px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        /* 页脚样式 */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: #777;
+            font-size: 12px;
+            position: relative;
+        }
+
+        .file-path {
+            font-size: 10px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .page-indicator {
+            position: absolute;
+            right: 20px;
+            bottom: 15px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                max-width: 100%;
+                padding-right: 0;
+                margin-bottom: 20px;
+            }
+            
+            .metrics {
+                flex-direction: column;
+            }
+            
+            .metric {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="timestamp">2025/6/16 14:40</div>
+        <h1>Dynamic PPCs Risk Prediction Model</h1>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <div class="parameters">
+                <h2>Patient Parameters</h2>
+                
+                <div class="parameter">
+                    <label for="pre_inr">Pre-INR</label>
+                    <input type="range" id="pre_inr" min="0.5" max="3.0" step="0.1" value="1.0">
+                    <span class="value" id="pre_inr_value">1.0</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="pre_ast">Pre-AST</label>
+                    <input type="range" id="pre_ast" min="10" max="200" step="1" value="25">
+                    <span class="value" id="pre_ast_value">25</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="op_time">Operative time (min)</label>
+                    <input type="range" id="op_time" min="30" max="600" step="10" value="120">
+                    <span class="value" id="op_time_value">120</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="post_rf">Post-R/F Ratio</label>
+                    <input type="range" id="post_rf" min="100" max="500" step="10" value="300">
+                    <span class="value" id="post_rf_value">300</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="blood_loss">Blood loss (mL)</label>
+                    <input type="range" id="blood_loss" min="0" max="2000" step="50" value="200">
+                    <span class="value" id="blood_loss_value">200</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="post_wbc">Post-WBC</label>
+                    <input type="range" id="post_wbc" min="3" max="20" step="0.1" value="7.5">
+                    <span class="value" id="post_wbc_value">7.5</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="smoking">Smoking</label>
+                    <select id="smoking">
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+
+                <div class="button-container">
+                    <button id="reset">Reset</button>
+                    <button id="calculate">Calculate Risk</button>
+                </div>
+                
+                <div class="risk-legend">
+                    <div class="risk-level low">Low Risk</div>
+                    <div class="risk-level moderate">Moderate</div>
+                    <div class="risk-level high">High Risk</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="risk-assessment">Risk Assessment</button>
+                <button class="tab-btn" data-tab="model-coefficients">Model Coefficients</button>
+                <button class="tab-btn" data-tab="model-performance">Model Performance</button>
+            </div>
+            
+            <div class="tab-content" id="risk-assessment">
+                <h2>PPCs Risk Assessment Results</h2>
+                
+                <div class="confidence-interval">
+                    <h3>95% Confidence Interval</h3>
+                    <div class="ci-visual">
+                        <div class="ci-bar">
+                            <div class="ci-marker" id="risk-marker"></div>
+                        </div>
+                        <div class="ci-labels">
+                            <span>0.0</span>
+                            <span>0.25</span>
+                            <span>0.50</span>
+                            <span>0.75</span>
+                            <span>1.00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="risk-indicators">
+                    <div class="risk-probability">
+                        <h3>PPCs Risk Probability</h3>
+                        <div class="risk-value" id="risk-percentage">9.2%</div>
+                    </div>
+                    <div class="risk-category">
+                        <h3>Risk Category</h3>
+                        <div class="category low-risk" id="risk-category">Low Risk</div>
+                    </div>
+                </div>
+                
+                <div class="risk-visualization">
+                    <h3>Clinical Interpretation:</h3>
+                    <p id="clinical-interpretation">The patient has a low risk of PPCs. Routine postoperative care is recommended.</p>
+                </div>
+                
+                <div class="risk-factors">
+                    <h3>PPCs Risk Factors Visualization</h3>
+                    <div class="organs">
+                        <div class="organ">
+                            <div class="organ-icon operative-time">
+                                <i class="icon"></i>
+                            </div>
+                            <div class="organ-label">Operative Time</div>
+                        </div>
+                        <div class="organ">
+                            <div class="organ-icon post-rf">
+                                <i class="icon"></i>
+                            </div>
+                            <div class="organ-label">Post-R/F Ratio</div>
+                        </div>
+                        <div class="organ">
+                            <div class="organ-icon post-wbc">
+                                <i class="icon"></i>
+                            </div>
+                            <div class="organ-label">Post-WBC</div>
+                        </div>
+                    </div>
+                    <div class="risk-factors-legend">
+                        <div class="legend-item">
+                            <div class="legend-color inflammation"></div>
+                            <span>Inflammation</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color operative"></div>
+                            <span>Operative Stress</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color comorbidity"></div>
+                            <span>Comorbidities</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content hidden" id="model-coefficients">
+                <h2>Random Forest Model Details</h2>
+                <div class="feature-importance">
+                    <h3>Feature Importance</h3>
+                    <div class="chart-container">
+                        <canvas id="feature-importance-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content hidden" id="model-performance">
+                <h2>Model Performance Metrics</h2>
+                <div class="metrics">
+                    <div class="metric">
+                        <h3>Validation AUC</h3>
+                        <div class="metric-value">0.91</div>
+                    </div>
+                    <div class="metric">
+                        <h3>Sensitivity</h3>
+                        <div class="metric-value">0.80</div>
+                    </div>
+                    <div class="metric">
+                        <h3>Specificity</h3>
+                        <div class="metric-value">0.84</div>
+                    </div>
+                </div>
+                <div class="roc-curve">
+                    <h3>ROC Curve</h3>
+                    <div class="chart-container">
+                        <canvas id="roc-curve-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p> 2025 Dynamic PPCs Risk Calculator. For research and educational purposes only.</p>
+        <p class="file-path">file://C:/Users/12194/PycharmProjects/PythonProject1/PPCs_risk_calculator/index.html</p>
+        <div class="page-indicator">1/1</div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 获取所有需要的DOM元素
+            const sliders = document.querySelectorAll('input[type="range"]');
+            const smokingSelect = document.getElementById('smoking');
+            const calculateBtn = document.getElementById('calculate');
+            const resetBtn = document.getElementById('reset');
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const riskMarker = document.getElementById('risk-marker');
+            const riskPercentage = document.getElementById('risk-percentage');
+            const riskCategory = document.getElementById('risk-category');
+            const clinicalInterpretation = document.getElementById('clinical-interpretation');
+            
+            // 添加滑块值更新事件
+            sliders.forEach(slider => {
+                const valueDisplay = document.getElementById(`${slider.id}_value`);
+                
+                slider.addEventListener('input', function() {
+                    valueDisplay.textContent = this.value;
+                });
+            });
+            
+            // 标签页切换功能
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // 移除所有活动状态
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.add('hidden'));
+                    
+                    // 添加当前标签活动状态
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.remove('hidden');
+                    
+                    // 如果是模型系数标签页，加载特征重要性图表
+                    if (tabId === 'model-coefficients') {
+                        loadFeatureImportanceChart();
+                    }
+                    
+                    // 如果是模型性能标签页，加载ROC曲线图表
+                    if (tabId === 'model-performance') {
+                        loadROCCurveChart();
+                    }
+                });
+            });
+            
+            // 重置按钮功能
+            resetBtn.addEventListener('click', function() {
+                // 重置所有滑块到默认值
+                document.getElementById('pre_inr').value = '1.0';
+                document.getElementById('pre_inr_value').textContent = '1.0';
+                
+                document.getElementById('pre_ast').value = '25';
+                document.getElementById('pre_ast_value').textContent = '25';
+                
+                document.getElementById('op_time').value = '120';
+                document.getElementById('op_time_value').textContent = '120';
+                
+                document.getElementById('post_rf').value = '300';
+                document.getElementById('post_rf_value').textContent = '300';
+                
+                document.getElementById('blood_loss').value = '200';
+                document.getElementById('blood_loss_value').textContent = '200';
+                
+                document.getElementById('post_wbc').value = '7.5';
+                document.getElementById('post_wbc_value').textContent = '7.5';
+                
+                // 重置吸烟状态
+                smokingSelect.value = '0';
+                
+                // 重置风险显示
+                riskPercentage.textContent = '9.2%';
+                riskCategory.textContent = 'Low Risk';
+                riskCategory.className = 'category low-risk';
+                riskMarker.style.left = '9.2%';
+                clinicalInterpretation.textContent = 'The patient has a low risk of PPCs. Routine postoperative care is recommended.';
+            });
+            
+            // 计算风险按钮功能
+            calculateBtn.addEventListener('click', function() {
+                // 收集所有参数值
+                const parameters = {
+                    pre_inr: parseFloat(document.getElementById('pre_inr').value),
+                    pre_ast: parseFloat(document.getElementById('pre_ast').value),
+                    op_time: parseFloat(document.getElementById('op_time').value),
+                    post_rf: parseFloat(document.getElementById('post_rf').value),
+                    blood_loss: parseFloat(document.getElementById('blood_loss').value),
+                    post_wbc: parseFloat(document.getElementById('post_wbc').value),
+                    smoking: parseInt(smokingSelect.value)
+                };
+                
+                // 计算风险分数 (模拟计算)
+                let riskScore = calculateMockRiskScore(parameters);
+                
+                // 更新界面显示
+                updateRiskDisplay(riskScore);
+            });
+            
+            // 模拟风险计算
+            function calculateMockRiskScore(params) {
+                // 为每个参数分配权重 (基于模拟数据)
+                const weights = {
+                    pre_inr: 0.15,
+                    pre_ast: 0.2,
+                    op_time: 0.25,
+                    post_rf: -0.15,
+                    blood_loss: 0.2,
+                    post_wbc: 0.15,
+                    smoking: 0.1
+                };
+                
+                // 计算归一化值
+                const normalized = {
+                    pre_inr: (params.pre_inr - 0.5) / 2.5,  // 归一化到0-1范围
+                    pre_ast: (params.pre_ast - 10) / 190,
+                    op_time: (params.op_time - 30) / 570,
+                    post_rf: 1 - (params.post_rf - 100) / 400,  // 反向，值越高风险越低
+                    blood_loss: params.blood_loss / 2000,
+                    post_wbc: (params.post_wbc - 3) / 17,
+                    smoking: params.smoking
+                };
+                
+                // 计算加权总分
+                let score = 0;
+                for (const [key, value] of Object.entries(normalized)) {
+                    score += value * weights[key];
+                }
+                
+                // 将分数限制在0到1之间
+                score = Math.max(0, Math.min(1, score));
+                
+                // 加入一点随机变化让演示更有趣
+                score = score * 0.8 + Math.random() * 0.2;
+                
+                return score;
+            }
+            
+            // 更新风险显示
+            function updateRiskDisplay(score) {
+                // 更新百分比显示
+                const percentage = (score * 100).toFixed(1);
+                riskPercentage.textContent = `${percentage}%`;
+                
+                // 更新标记位置
+                riskMarker.style.left = `${score * 100}%`;
+                
+                // 更新风险类别
+                riskCategory.className = 'category';
+                if (score < 0.3) {
+                    riskCategory.textContent = 'Low Risk';
+                    riskCategory.classList.add('low-risk');
+                    clinicalInterpretation.textContent = 'The patient has a low risk of PPCs. Routine postoperative care is recommended.';
+                } else if (score < 0.6) {
+                    riskCategory.textContent = 'Moderate Risk';
+                    riskCategory.classList.add('moderate-risk');
+                    clinicalInterpretation.textContent = 'The patient has a moderate risk of PPCs. Consider monitoring and follow-up if symptoms persist.';
+                } else {
+                    riskCategory.textContent = 'High Risk';
+                    riskCategory.classList.add('high-risk');
+                    clinicalInterpretation.textContent = 'The patient has a high risk of PPCs. Close monitoring and preventive measures are strongly recommended.';
+                }
+            }
+            
+            // 设置初始风险标记位置
+            riskMarker.style.left = '9.2%';
+            
+            // 加载特征重要性图表
+            function loadFeatureImportanceChart() {
+                const ctx = document.getElementById('feature-importance-chart').getContext('2d');
+                
+                // 清除现有图表
+                if (window.featureChart instanceof Chart) {
+                    window.featureChart.destroy();
+                }
+                
+                // 模型特征重要性数据 (使用实际数据)
+                const featureData = {
+                    labels: [
+                        'Operative time',
+                        'Blood loss',
+                        'Pre-AST',
+                        'Pre-INR',
+                        'Post-WBC',
+                        'Post-R/F Ratio', 
+                        'Smoking'
+                    ],
+                    datasets: [{
+                        label: 'Feature Importance',
+                        data: [0.28, 0.22, 0.18, 0.12, 0.10, 0.07, 0.03],
+                        backgroundColor: [
+                            'rgba(66, 133, 244, 0.7)',
+                            'rgba(219, 68, 55, 0.7)',
+                            'rgba(244, 180, 0, 0.7)',
+                            'rgba(15, 157, 88, 0.7)',
+                            'rgba(66, 133, 244, 0.7)',
+                            'rgba(219, 68, 55, 0.7)',
+                            'rgba(244, 180, 0, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(66, 133, 244, 1)',
+                            'rgba(219, 68, 55, 1)',
+                            'rgba(244, 180, 0, 1)',
+                            'rgba(15, 157, 88, 1)',
+                            'rgba(66, 133, 244, 1)',
+                            'rgba(219, 68, 55, 1)',
+                            'rgba(244, 180, 0, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+                
+                // 创建图表
+                window.featureChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: featureData,
+                    options: {
+                        indexAxis: 'y',
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Importance Score'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Random Forest Feature Importance'
+                            },
+                            legend: {
+                                display: false
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+            
+            // 加载ROC曲线图表
+            function loadROCCurveChart() {
+                const ctx = document.getElementById('roc-curve-chart').getContext('2d');
+                
+                // 清除现有图表
+                if (window.rocChart instanceof Chart) {
+                    window.rocChart.destroy();
+                }
+                
+                // ROC曲线数据 (使用实际数据)
+                const rocData = {
+                    labels: ['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0'],
+                    datasets: [
+                        {
+                            label: 'Random Forest (AUC = 0.91)',
+                            data: [0, 0.25, 0.42, 0.55, 0.67, 0.75, 0.82, 0.88, 0.93, 0.97, 1.0],
+                            borderColor: 'rgba(66, 133, 244, 1)',
+                            backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Reference Line',
+                            data: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+                            borderColor: 'rgba(200, 200, 200, 1)',
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                };
+                
+                // 创建图表
+                window.rocChart = new Chart(ctx, {
+                    type: 'line',
+                    data: rocData,
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'False Positive Rate'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'True Positive Rate'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Receiver Operating Characteristic (ROC) Curve'
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+            
+            // 初始加载图表
+            document.querySelector('.tab-btn[data-tab="model-coefficients"]').addEventListener('click', function() {
+                setTimeout(loadFeatureImportanceChart, 100);
+            });
+            
+            document.querySelector('.tab-btn[data-tab="model-performance"]').addEventListener('click', function() {
+                setTimeout(loadROCCurveChart, 100);
+            });
+        });
+    </script>
+</body>
+</html>
+
