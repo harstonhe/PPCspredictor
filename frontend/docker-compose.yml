@@ -1,0 +1,12 @@
+﻿version: '3'
+
+services:
+  ppcs-predictor:
+    image: heharston/ppcs-predictor:latest
+    container_name: ppcs-predictor
+    restart: always
+    ports:
+      - "8050:8050"
+    environment:
+      - PORT=8050
+      - PYTHONUNBUFFERED=1
