@@ -35,9 +35,6 @@ pip install -r requirements.txt
 python app.py
 ```
 
-3. 访问网站:
-```
-http://localhost:8050/PPCspredictor.html
 ```
 
 ## Docker部署
@@ -53,18 +50,8 @@ http://localhost:8050/PPCspredictor.html
 .\build-and-push.bat
 ```
 
-2. 在服务器上拉取并运行Docker容器:
-```bash
-docker pull heharston/ppcs-predictor:latest
-docker run -d --name ppcs-predictor -p 8050:8050 heharston/ppcs-predictor:latest
+
 ```
 
-3. 配置Web服务器转发请求:
-参考 `deployment-guide.md` 中的Nginx配置示例。
 
-## 访问部署后的应用
-
-部署完成后，可以通过以下URL访问应用:
-```
-http://156.245.201.41/PPCspredictor.html
 ```
